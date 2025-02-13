@@ -74,7 +74,7 @@ const HomePage = () => {
 
         
         const tx = await contractWithSigner.storePrivateInfo(newUserData);
-        console.log("📌 Transacción enviada:", tx.hash);
+        console.log(" Transacción enviada:", tx.hash);
 
         
         await tx.wait();
