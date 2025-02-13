@@ -91,7 +91,7 @@ const HomePage = () => {
 
   const getUserData = async () => {
     if (!contract) {
-        console.warn("⚠️ El contrato no está definido.");
+        console.warn(" El contrato no está definido.");
         return;
     }
 
@@ -101,7 +101,7 @@ const HomePage = () => {
     }
 
     try {
-        console.log(`🔍 Consultando datos para la dirección: ${userAddress}`);
+        console.log(` Consultando datos para la dirección: ${userAddress}`);
 
         // Verificar si la dirección está en la whitelist
         const isWhitelisted = await contract.whitelist(userAddress);
