@@ -84,7 +84,7 @@ const HomePage = () => {
         //setNewUserData("");
 
     } catch (err) {
-        console.error("❌ Error al almacenar los datos:", err);
+        console.error(" Error al almacenar los datos:", err);
     }
 };
 
