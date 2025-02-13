@@ -1,101 +1,191 @@
-import Image from "next/image";
+"use client"; // Asegura que este componente se ejecute en el cliente
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import { useEffect, useState } from "react";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+// Extiende la interfaz Window para incluir ethereum
+declare global {
+  interface Window {
+    ethereum: {
+      request: (args: { method: string }) => Promise<unknown>;
+    };
+  }
 }
+import { ethers } from "ethers";
+import { motion } from "framer-motion"; // Importa framer-motion
+
+const contractAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Dirección del contrato desplegado
+
+const HomePage = () => {
+  const [ethProvider, setEthProvider] = useState<ethers.JsonRpcProvider | null>(null);
+  const [contract, setContract] = useState<ethers.Contract | null>(null);
+  const [userAddress, setUserAddress] = useState<string>("");
+  const [userData, setUserData] = useState<string>("");
+  const [newUserData, setNewUserData] = useState<string>("");
+
+  useEffect(() => {
+    const init = async () => {
+      const _provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      setEthProvider(_provider);
+
+      const contractABI = [
+        "function storePrivateInfo(string memory _info) public",
+        "function getPrivateInfo(address _address) public view returns (string memory)",
+        "function whitelist(address) public view returns (bool)"
+      ];
+      const _contract = new ethers.Contract(contractAddress, contractABI, _provider);
+      console.log("Contrato cargado:", _contract);
+      setContract(_contract);
+    };
+
+    init();
+  }, []);
+
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setUserAddress((accounts as string[])[0]);
+        console.log("Cuenta conectada:", (accounts as string[])[0]);
+      } catch (err) {
+        console.error("Error al conectar la billetera:", err);
+      }
+    } else {
+      console.log("MetaMask no está instalado");
+    }
+  };
+
+  const storeUserData = async () => {
+    if (!contract || !ethProvider) {
+        console.error("⚠️ No se encontró el contrato o el proveedor de Ethereum.");
+        return;
+    }
+
+    if (!newUserData.trim()) {
+        console.warn("⚠️ No se puede almacenar un dato vacío.");
+        return;
+    }
+
+    try {
+        // Obtenemos el signer para firmar la transacción
+        const signer = await ethProvider.getSigner();
+        const contractWithSigner = contract.connect(signer);
+
+        console.log("🚀 Enviando transacción para almacenar información...");
+
+        
+        const tx = await contractWithSigner.storePrivateInfo(newUserData);
+        console.log("📌 Transacción enviada:", tx.hash);
+
+        
+        await tx.wait();
+        console.log("✅ Información almacenada con éxito.");
+        alert("Datos almacenados");
+
+        //setNewUserData("");
+
+    } catch (err) {
+        console.error("❌ Error al almacenar los datos:", err);
+    }
+};
+
+
+  const getUserData = async () => {
+    if (!contract) {
+        console.warn("⚠️ El contrato no está definido.");
+        return;
+    }
+
+    if (!userAddress) {
+        console.warn("⚠️ No se ha detectado una dirección de usuario.");
+        return;
+    }
+
+    try {
+        console.log(`🔍 Consultando datos para la dirección: ${userAddress}`);
+
+        // Verificar si la dirección está en la whitelist
+        const isWhitelisted = await contract.whitelist(userAddress);
+
+        if (!isWhitelisted) {
+            console.warn("🚫 La dirección no está en la whitelist.");
+            setUserData("Acceso denegado: No estás en la whitelist.");
+            return;
+        }
+
+        // Obtener información usando la dirección conectada
+        const data = await contract.getPrivateInfo(userAddress);
+        console.log("Datos obtenidos con userAddress:", data);
+
+        // Obtener información usando la dirección fija
+        const storedData = await contract.getPrivateInfo("0x387d0b0cf4601ba1ef9f67f1a63e002473a0f37f");
+        console.log("📌 Datos recuperados (dirección fija):", storedData);
+
+        if (!newUserData || newUserData.trim() === "") {
+            console.log("ℹ️ No se encontraron datos para esta dirección.");
+            setUserData("No se encontraron datos.");
+        } else {
+            console.log("✅ Datos obtenidos:", newUserData);
+            setUserData(newUserData);
+        }
+    } catch (err) {
+        console.error("❌ Error obteniendo datos:", err);
+        setUserData("Error al obtener los datos.");
+    }
+};
+
+  return (
+    <motion.div 
+      className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-gray-900 to-green-800 p-6"
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      transition={{ duration: 0.8 }}
+    >
+      <motion.div className="text-center mb-8">
+        <h1 className="text-3xl font-semibold text-white">Conectar Billetera</h1>
+        <motion.button
+          onClick={connectWallet}
+          className="mt-6 px-6 py-3 bg-gradient-to-r from-green-700 to-green-900 text-white rounded-lg text-lg shadow-md hover:bg-green-800 transition-all"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Conectar Wallet
+        </motion.button>
+        <p className="mt-4 text-gray-400 text-sm">Cuenta conectada: {userAddress}</p>
+      </motion.div>
+
+      <motion.div className="mt-12 w-full max-w-md">
+        <h3 className="text-xl font-medium text-gray-200">Almacenar Información Privada</h3>
+        <input
+          type="text"
+          value={newUserData}
+          onChange={(e) => setNewUserData(e.target.value)}
+          placeholder="Introduce datos privados"
+          className="mt-4 w-full p-4 text-gray-800 bg-gray-200 border border-gray-500 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600"
+        />
+        <motion.button
+          onClick={storeUserData}
+          className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Almacenar Datos
+        </motion.button>
+      </motion.div>
+
+      <motion.div className="mt-12 w-full max-w-md">
+        <h3 className="text-xl font-medium text-gray-200">Consultar Información Privada</h3>
+        <motion.button
+          onClick={getUserData}
+          className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Obtener Datos
+        </motion.button>
+        <p className="mt-4 text-gray-400">Datos: {userData}</p>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default HomePage;
