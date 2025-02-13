@@ -1,12 +1,14 @@
 {
   "name": "hardhat-project",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.15.9",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@types/node": "^22.13.2",
     "hardhat": "^2.22.18"
   },
   "dependencies": {
     "alchemy-sdk": "^3.5.3",
+    "build": "^0.1.4",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5"
   }
