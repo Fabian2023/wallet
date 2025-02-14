@@ -1,9 +1,9 @@
-"use client"; // Asegura que este componente se ejecute en el cliente
+"use client"; 
 
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-// Extiende la interfaz Window para incluir ethereum
+
 declare global {
   interface Window {
     ethereum: {
@@ -12,10 +12,10 @@ declare global {
   }
 }
 import { ethers } from "ethers";
-import { motion } from "framer-motion"; // Importa framer-motion
-//import contractABI from "../../blockchain-contract/artifacts/contracts/PrivateInfoStorage.sol/"; // Importa el ABI del contrato
+import { motion } from "framer-motion"; 
 
-const contractAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Dirección del contrato desplegado
+
+const contractAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Dirección del contrato desplegado localmente puede cambiar actualizar aqui
 
 const HomePage = () => {
   const [ethProvider, setEthProvider] = useState<ethers.JsonRpcProvider | null>(
@@ -81,7 +81,7 @@ const HomePage = () => {
     }
 
     try {
-      // Obtenemos el signer para firmar la transacción
+      
       const signer = await ethProvider.getSigner();
       const contractWithSigner = contract.connect(signer) as ethers.Contract;
 
@@ -91,7 +91,7 @@ const HomePage = () => {
       console.log(" Transacción enviada:", tx.hash);
 
       await tx.wait();
-      console.log("✅ Información almacenada con éxito.");
+      
       localStorage.setItem("userStoredData", newUserData);
 
       setNewUserData("");
