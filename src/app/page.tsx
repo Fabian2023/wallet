@@ -1,6 +1,7 @@
 "use client"; // Asegura que este componente se ejecute en el cliente
 
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react"; 
 
 // Extiende la interfaz Window para incluir ethereum
 declare global {
@@ -22,6 +23,9 @@ const HomePage = () => {
   const [userAddress, setUserAddress] = useState<string>("");
   const [userData, setUserData] = useState<string>("");
   const [newUserData, setNewUserData] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+  const [showAddress, setShowAddress] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -82,9 +86,14 @@ const HomePage = () => {
         
         await tx.wait();
         console.log("✅ Información almacenada con éxito.");
-        alert("Datos almacenados");
+        localStorage.setItem("userStoredData", newUserData);
+        
+        setNewUserData("");
+        setShowModal2(true);
 
-        //setNewUserData("");
+        setTimeout(() => {
+          setShowModal2(false);
+      }, 4000);
 
     } catch (err) {
         console.error(" Error al almacenar los datos:", err);
@@ -92,103 +101,111 @@ const HomePage = () => {
 };
 
 
-  const getUserData = async () => {
-    if (!contract) {
-        console.warn(" El contrato no está definido.");
-        return;
-    }
+const getUserData = async () => {
+  setShowModal(true);
+  setTimeout(async () => {
+    setShowModal(false);
 
-    if (!userAddress) {
-        console.warn(" No se ha detectado una dirección  usuario.");
-        return;
+    if (!contract || !userAddress) {
+      setUserData("Error: Datos no disponibles.");
+      return;
     }
 
     try {
-        console.log(` Consultando datos para la dirección: ${userAddress}`);
+      const isWhitelisted = await contract.whitelist(userAddress);
+      if (!isWhitelisted) {
+        setUserData("Acceso denegado: No estás en la whitelist.");
+        return;
+      }
 
-        // Verificar si la dirección está en la whitelist
-        const isWhitelisted = await contract.whitelist(userAddress);
-
-        if (!isWhitelisted) {
-            console.warn("🚫 La dirección no está en la whitelist.");
-            setUserData("Acceso denegado: No estás en la whitelist.");
-            return;
-        }
-
-        // Obtener información usando la dirección conectada
-        const data = await contract.getPrivateInfo(userAddress);
-        console.log("Datos obtenidos con userAddress:", data);
-
-        // Obtener información usando la dirección fija
-        const storedData = await contract.getPrivateInfo("0x387d0b0cf4601ba1ef9f67f1a63e002473a0f37f");
-        console.log("📌 Datos recuperados (dirección fija):", storedData);
-
-        if (!newUserData || newUserData.trim() === "") {
-            console.log("ℹ️ No se encontraron datos para esta dirección.");
-            setUserData("No se encontraron datos.");
-        } else {
-            console.log("✅ Datos obtenidos:", newUserData);
-            setUserData(newUserData);
-        }
+      const storedData = localStorage.getItem("userStoredData");
+      setUserData(storedData ? storedData : "No se encontraron datos.");
     } catch (err) {
-        console.error("❌ Error obteniendo datos:", err);
-        setUserData("Error al obtener los datos.");
+      setUserData("Error al obtener los datos.");
     }
+  }, 3000);
 };
 
-  return (
-    <motion.div 
-      className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-gray-900 to-green-800 p-6"
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ duration: 0.8 }}
-    >
-      <motion.div className="text-center mb-8">
-        <h1 className="text-3xl font-semibold text-white">Conectar Billetera</h1>
-        <motion.button
-          onClick={connectWallet}
-          className="mt-6 px-6 py-3 bg-gradient-to-r from-green-700 to-green-900 text-white rounded-lg text-lg shadow-md hover:bg-green-800 transition-all"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Conectar Wallet
+return (
+  <motion.div 
+    className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-gray-900 to-green-800 p-6"
+    initial={{ opacity: 0 }} 
+    animate={{ opacity: 1 }} 
+    transition={{ duration: 0.8 }}
+  >
+    <motion.div className="text-center mb-8">
+      <h1 className="text-3xl font-semibold text-white">Conectar Billetera</h1>
+      <motion.button
+        onClick={connectWallet}
+        className="mt-6 px-6 py-3 bg-gradient-to-r from-green-700 to-green-900 text-white rounded-lg text-lg shadow-md hover:bg-green-800 transition-all"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        Conectar Wallet
         </motion.button>
-        <p className="mt-4 text-gray-400 text-sm">Cuenta conectada: {userAddress}</p>
+        
+        <div className="mt-4 flex items-center justify-center gap-2 font-medium text-gray-400 text-sm">
+          <p>Cuenta conectada: {showAddress ? userAddress : "••••••••••••••••"}</p>
+          <button onClick={() => setShowAddress(!showAddress)} className="focus:outline-none">
+            {showAddress ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
       </motion.div>
 
-      <motion.div className="mt-12 w-full max-w-md">
-        <h3 className="text-xl font-medium text-gray-200">Almacenar Información Privada</h3>
-        <input
-          type="text"
-          value={newUserData}
-          onChange={(e) => setNewUserData(e.target.value)}
-          placeholder="Introduce datos privados"
-          className="mt-4 w-full p-4 text-gray-800 bg-gray-200 border border-gray-500 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600"
-        />
-        <motion.button
-          onClick={storeUserData}
-          className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Almacenar Datos
-        </motion.button>
-      </motion.div>
-
-      <motion.div className="mt-12 w-full max-w-md">
-        <h3 className="text-xl font-medium text-gray-200">Consultar Información Privada</h3>
-        <motion.button
-          onClick={getUserData}
-          className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Obtener Datos
-        </motion.button>
-        <p className="mt-4 text-gray-400">Datos: {userData}</p>
-      </motion.div>
+    <motion.div className="mt-12 w-full max-w-md">
+      <h3 className="text-xl font-medium text-gray-200">Almacenar Información Privada</h3>
+      <input
+        type="text"
+        value={newUserData}
+        onChange={(e) => setNewUserData(e.target.value)}
+        placeholder="Introduce datos privados"
+        className="mt-4 w-full p-4 text-gray-800 bg-gray-200 border border-gray-500 rounded-lg shadow-sm focus:ring-2 focus:ring-green-600"
+      />
+      <motion.button
+        onClick={storeUserData}
+        className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        Almacenar Datos
+      </motion.button>
     </motion.div>
-  );
-};
+    {showModal2 && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <motion.div 
+          className="bg-white p-6 rounded-lg shadow-lg"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.3 }}
+        >
+          <p className="text-lg font-semibold">Datos almacenados con éxito.</p>
+        </motion.div>
+      </div>
+    )}
+
+    {showModal && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <motion.div className="bg-white p-6 rounded-lg shadow-lg">
+          <p className="text-lg font-semibold">Obteniendo datos...</p>
+        </motion.div>
+      </div>
+    )}
+
+    <motion.div className="mt-12 w-full max-w-md">
+      <h3 className="text-xl font-medium text-gray-200">Consultar Información Privada</h3>
+      <motion.button
+        onClick={getUserData}
+        className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg text-lg shadow-md hover:bg-green-700 transition-all"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        Obtener Datos
+      </motion.button>
+      <p className="mt-4 text-gray-400">Datos: {userData}</p>
+    </motion.div>
+  </motion.div>
+);
+}
 
 export default HomePage;

@@ -6,7 +6,7 @@ contract PrivateInfoStorage {
     mapping(address => string) private privateInfo;
 
     constructor() {
-        
+    
         whitelist[0x5FbDB2315678afecb367f032d93F642f64180aa3] = true;
         whitelist[0x5Ec605060d810669fd7134494C4AF17ab438CC92] = true;
         whitelist[0x3D3A40cBa3Ef5cc620bC580de1eD1246cda7Dba4] = true;
