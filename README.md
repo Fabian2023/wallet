@@ -46,11 +46,7 @@ La aplicación estará disponible en `http://localhost:3000`.
 2. Importa una cuenta de Hardhat usando una clave privada desde la terminal.
 3. Refresca la aplicación y conéctala a MetaMask.
 
-## Despliegue en Vercel
-Para desplegar la aplicación en Vercel:
-```bash
-vercel
-```
+
 Sigue las instrucciones en la terminal para completar el proceso.
 
 ## Contribuciones
