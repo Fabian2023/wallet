@@ -1,24 +1,53 @@
-# Proyecto Blockchain con Next.js y Hardhat
+# 🚀 Blockchain & Frontend Integration
 
-Este proyecto es una aplicación web desarrollada con Next.js, React y TailwindCSS que interactúa con un contrato inteligente desplegado en una red local de Hardhat. Permite almacenar y consultar información privada utilizando un sistema de whitelist y conexión con billeteras Web3.
+## Descripción
+Este proyecto es una aplicación completa que combina desarrollo **frontend** con **blockchain**. Permite almacenar y consultar información privada de manera segura mediante un **contrato inteligente** y un sistema de acceso basado en **whitelist**.
 
-## Requisitos previos
+## Tecnologías utilizadas
+- **Frontend:** Next.js, React, TypeScript, TailwindCSS
+- **Blockchain:** Solidity, Hardhat, Web3.js
+- **Herramientas adicionales:** MetaMask, Vercel (para despliegue)
 
-Antes de comenzar, asegúrate de tener instalados los siguientes requisitos:
+## Instalación y configuración
 
-- [Node.js](https://nodejs.org/) (versión recomendada: 18 o superior)
-- [Hardhat](https://hardhat.org/) (se instalará con las dependencias)
-- [Metamask](https://metamask.io/) o cualquier billetera Web3 compatible
-
-## Instalación
-
-Clona el repositorio e instala las dependencias:
-
-```sh
-# Clonar el repositorio
+### 1. Clonar el repositorio
+```bash
 git clone https://github.com/tu-usuario/tu-repositorio.git
 cd tu-repositorio
+```
 
-# Instalar dependencias
+### 2. Instalar dependencias
+```bash
 npm install
+```
+
+### 3. Configurar Hardhat para el entorno local
+Ejecuta el siguiente comando para iniciar un nodo local de Hardhat:
+```bash
+npx hardhat node
+```
+
+### 4. Desplegar el contrato inteligente en la red local
+Abre otra terminal y ejecuta:
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
+Esto desplegará el contrato en la red local de Hardhat.
+
+### 5. Ejecutar la aplicación Next.js
+Para iniciar el servidor de desarrollo de Next.js, ejecuta:
+```bash
+npm run dev
+```
+La aplicación estará disponible en `http://localhost:3000`.
+
+## Conexión con MetaMask
+1. Abre MetaMask y cambia la red a **Localhost 8545**.
+2. Importa una cuenta de Hardhat usando una clave privada desde la terminal.
+3. Refresca la aplicación y conéctala a MetaMask.
+
+
+
+
+
 
