@@ -47,11 +47,7 @@ La aplicación estará disponible en `http://localhost:3000`.
 3. Refresca la aplicación y conéctala a MetaMask.
 
 
-Sigue las instrucciones en la terminal para completar el proceso.
 
-## Contribuciones
-Si deseas contribuir, siéntete libre de hacer un fork del repositorio y abrir un Pull Request.
 
-## Licencia
-Este proyecto está bajo la licencia MIT.
+
 
