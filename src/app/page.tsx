@@ -121,6 +121,7 @@ const getUserData = async () => {
       const storedData = localStorage.getItem("userStoredData");
       setUserData(storedData ? storedData : "No se encontraron datos.");
     } catch (err) {
+      console.error("Error al obtener los datos:", err);
       setUserData("Error al obtener los datos.");
     }
   }, 3000);
