@@ -12,6 +12,7 @@ declare global {
 }
 import { ethers } from "ethers";
 import { motion } from "framer-motion"; // Importa framer-motion
+//import contractABI from "../../blockchain-contract/artifacts/contracts/PrivateInfoStorage.sol/"; // Importa el ABI del contrato
 
 const contractAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Dirección del contrato desplegado
 
@@ -68,7 +69,8 @@ const HomePage = () => {
     try {
         // Obtenemos el signer para firmar la transacción
         const signer = await ethProvider.getSigner();
-        const contractWithSigner = contract.connect(signer);
+        const contractWithSigner = contract.connect(signer) as any;
+
 
         console.log("🚀 Enviando transacción para almacenar información...");
 
