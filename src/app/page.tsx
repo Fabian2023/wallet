@@ -69,7 +69,8 @@ const HomePage = () => {
     try {
         // Obtenemos el signer para firmar la transacción
         const signer = await ethProvider.getSigner();
-        const contractWithSigner = contract.connect(signer) as any;
+        const contractWithSigner = contract.connect(signer) as ethers.Contract;
+
 
 
         console.log("🚀 Enviando transacción para almacenar información...");
