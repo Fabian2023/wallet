@@ -96,7 +96,7 @@ const HomePage = () => {
     }
 
     if (!userAddress) {
-        console.warn(" No se ha detectado una dirección de usuario.");
+        console.warn(" No se ha detectado una dirección  usuario.");
         return;
     }
 
