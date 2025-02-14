@@ -138,6 +138,11 @@ const HomePage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
+    <div>
+      <h1 className="text- text-center mb-8 font-semibold text-white">
+      Aplicación blockchain que permite almacenar y consultar información privada de forma segura mediante un contrato inteligente y una whitelist.
+      </h1>
+    </div>
       <motion.div className="text-center mb-8">
         <h1 className="text-3xl font-semibold text-white">
           Conectar Billetera
